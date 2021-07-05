@@ -13,36 +13,8 @@ import { FlatList, TouchableOpacity } from 'react-native-gesture-handler';
 
 const Home = ({ navigation }) => {
     const [countries, setCountries] = useState([]);
-    const [text, onChangeText] = useState(null);
     const API_KEY = 'AIzaSyCosYXoVE-1LflzJyPbZD_fX6xF_ZTwObQ';
-
-    const countryList = ['Argentina', 'España'];
-    const countryCodesList = ['AR', 'ES'];
-
-    const capitalizeFirstLetter = (string) => {
-        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-    };
-
-    const textChangeHandler = (e) => {
-        const capitalizedWord = capitalizeFirstLetter(e);
-        onChangeText(capitalizedWord);
-    };
-
-    const submitCountry = (e) => {
-        if (countryList.includes(text) && !countries.includes(text)) {
-            setCountries([...countries, text]);
-        } else if (countries.includes(text)) {
-            console.log('El país ya está ingresado');
-        } else {
-            console.log('No hay país');
-        }
-        onChangeText(null);
-    };
-
-    const removeCountry = (value) => {
-        const newArray = countries.filter((country) => country !== value);
-        setCountries(newArray);
-    };
+    const countryCodesList = ['Argentina', 'Spain'];
 
     const getCountry = async (e) => {
         const { latitude, longitude } = e.nativeEvent.coordinate;
@@ -54,7 +26,7 @@ const Home = ({ navigation }) => {
             if (address_components) {
                 const countryCode = address_components.find(
                     (el) => el.types[0] === 'country'
-                ).short_name;
+                ).long_name;
                 if (
                     countryCodesList.includes(countryCode) &&
                     !countries.includes(countryCode)
@@ -71,15 +43,17 @@ const Home = ({ navigation }) => {
         }
     };
 
-    const renderedAreas = countries.map((country, i) => (
-        <Geojson
-            key={i}
-            geojson={CountryAreas[country]}
-            strokeColor='#0568AE'
-            fillColor='#009FDB'
-            strokeWidth={1}
-        />
-    ));
+    const renderedAreas = countries.map((country, i) => {
+        return (
+            <Geojson
+                key={i}
+                geojson={CountryAreas[country]}
+                strokeColor='#0568AE'
+                fillColor='#009FDB'
+                strokeWidth={1}
+            />
+        );
+    });
 
     const renderedCountries = ({ item }) => (
         <View style={styles.row}>
@@ -92,25 +66,11 @@ const Home = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.row}>
-                <TextInput
-                    placeholder='País'
-                    style={styles.input}
-                    value={text}
-                    onChangeText={textChangeHandler}
-                />
-                <Button
-                    style={styles.button}
-                    onPress={submitCountry}
-                    title='Insertar'
-                />
-            </View>
             <MapView
                 onPress={getCountry}
                 provider='google'
                 style={styles.mapStyle}
-                zoomEnabled={false}
-                maxZoomLevel={0}
+                maxZoomLevel={12}
                 minZoomLevel={0}
             >
                 {renderedAreas}
